@@ -21,7 +21,7 @@ This is currently just a playground to get find common ground.
 
 ## LICENSE
 
-    Copyright 2015 [ubirch GmbH](http://www.ubirch.com)
+    Copyright 2015 ubirch GmbH (http://www.ubirch.com)
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
