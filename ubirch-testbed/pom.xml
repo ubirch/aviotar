@@ -98,6 +98,8 @@
           </execution>
         </executions>
         <configuration>
+          <scalaCompatVersion>${scala.major.version}</scalaCompatVersion>
+          <scalaVersion>${scala.version}</scalaVersion>
           <!--<recompileMode>incremental</recompileMode>-->
         </configuration>
       </plugin>
