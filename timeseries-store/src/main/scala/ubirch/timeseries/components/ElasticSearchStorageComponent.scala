@@ -22,6 +22,7 @@ import java.net.{URI, URLEncoder}
 import java.text.SimpleDateFormat
 import java.util.{Date, Locale, TimeZone}
 
+import com.typesafe.scalalogging.LazyLogging
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json.JsonParser._
 import net.liftweb.json.Serialization._
@@ -47,7 +48,7 @@ import scala.concurrent.Future
  *
  * @author Matthias L. Jugel
  */
-trait ElasticSearchStorageComponent extends StorageComponent[JValue] {
+trait ElasticSearchStorageComponent extends StorageComponent[JValue] with LazyLogging {
   val uri: URI
   val timestamp: String = "@timestamp"
   val httpClient: CloseableHttpClient = HttpClients.createDefault()
@@ -154,6 +155,7 @@ trait ElasticSearchStorageComponent extends StorageComponent[JValue] {
     }
 
     private def execute(request: HttpUriRequest): (Option[JValue], Int) = {
+      logger.debug(s"execute($request)")
       val response = client.execute(request)
       try {
         val parsed = try {
@@ -163,6 +165,7 @@ trait ElasticSearchStorageComponent extends StorageComponent[JValue] {
             e.printStackTrace()
             None
         }
+        logger.debug(write(parsed))
         (parsed, response.getStatusLine.getStatusCode)
       } finally {
         response.close()
