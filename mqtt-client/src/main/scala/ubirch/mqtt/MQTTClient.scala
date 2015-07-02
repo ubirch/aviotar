@@ -231,7 +231,7 @@ class MQTTClient(broker: URI, config: MQTTClient.Configuration = MQTTClient.Conf
     case Event(Disconnected(throwable), _) =>
       throwable.foreach(e => log.debug(s"disconnected(${e.getMessage}"))
       setTimer("reconnect", Connect, 10 seconds)
-      stay()
+      goto(ClientDisconnected)
   }
 
   initialize()

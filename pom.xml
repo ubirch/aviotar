@@ -41,6 +41,7 @@
     <scala.minor.version>.5</scala.minor.version>
     <scala.version>${scala.major.version}${scala.minor.version}</scala.version>
     <scala-maven-plugin.version>3.1.6</scala-maven-plugin.version>
+    <scala-logging.version>3.1.0</scala-logging.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <logback.version>1.0.7</logback.version>
     <!-- Testing -->
