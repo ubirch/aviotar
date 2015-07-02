@@ -17,8 +17,15 @@ This is currently just a playground to get find common ground.
 3. Install and start mosquitto (brew install mosquitto)
 4. Install and start kibana (https://www.elastic.co/products/kibana)
 5. run mvn clean install
-6. java -jar ubirch-testbed/target/ubirch-testbed-1.0.jar 
+6. java -jar ubirch-testbed/target/ubirch-testbed-1.0.jar thingspeak-dumpdir 
 
+To create the data dumps, you can use this simple script:
+```bash
+#! /bin/sh
+for i in `seq 1 43`; do
+  curl "http://api.ubirch.com/channels/$i/feed.json?start=2014-01-01%2000:00:00&end=2015-12-31%2000:00:00&key=XXXXXX" > $i.json
+done
+``` 
 ## LICENSE
 
     Copyright 2015 ubirch GmbH (http://www.ubirch.com)
