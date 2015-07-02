@@ -17,7 +17,7 @@ This is currently just a playground to get find common ground.
 3. Install and start mosquitto (brew install mosquitto)
 4. Install and start kibana (https://www.elastic.co/products/kibana)
 5. run mvn clean install
-5. java -jar ubirch-testbed/target/ubirch-testbed-1.0.jar 
+6. java -jar ubirch-testbed/target/ubirch-testbed-1.0.jar 
 
 ## LICENSE
 
