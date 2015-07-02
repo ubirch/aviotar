@@ -65,6 +65,11 @@
       <version>${scala.version}</version>
     </dependency>
     <dependency>
+      <groupId>com.typesafe.scala-logging</groupId>
+      <artifactId>scala-logging_${scala.major.version}</artifactId>
+      <version>${scala-logging.version}</version>
+    </dependency>
+    <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>${logback.version}</version>
@@ -111,7 +116,7 @@
           <transformers>
             <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
             <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-              <mainClass>ubirch.aviotar.Main</mainClass>
+              <mainClass>ubirch.aviotar.ImportThingSpeak</mainClass>
             </transformer>
           </transformers>
           <filters>
