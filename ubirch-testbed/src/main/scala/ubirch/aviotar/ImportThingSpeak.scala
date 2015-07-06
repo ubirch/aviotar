@@ -86,10 +86,13 @@ object ImportThingSpeak extends App with LazyLogging {
             val fields = (1 to 8).collect {
               case i if (entry \ s"field$i").toOpt.isDefined && (entry \ s"field$i").extract[String] != null =>
                 val fieldId: String = s"field$i"
+                // fix some obvious data errors
                 val s = (entry \ fieldId).extract[String].replaceAll("token=tbd", "")
+                // extract the actual value (string => Int -> Double -> json -> string)
                 val value = Try(new BigInteger(s).longValue()) orElse
                   Try(new java.math.BigDecimal(s).doubleValue()) orElse
                   Try(parse(s).values) getOrElse s
+                // storage data using the actual field name (which should be lowercase)
                 channel(fieldId).toString.toLowerCase -> value
             }
             val data = Extraction.decompose(fields.toMap).merge("@ts" -> publishFormat.format(timestamp): JValue)
