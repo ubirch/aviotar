@@ -51,6 +51,7 @@
   <modules>
     <module>mqtt-client</module>
     <module>timeseries-store</module>
+    <module>ubirch-server</module>
     <module>ubirch-testbed</module>
   </modules>
 </project>

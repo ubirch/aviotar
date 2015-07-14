@@ -1,0 +1,14 @@
+{
+  "mqtt": {
+    "clientId": "aviotar-server"
+  },
+  "subscriber": {
+    "/sensors/#": {
+      "type": "ElasticSearchSink",
+      "url": "http://localhost:9200",
+      "index": "sensors",
+      "timestamp": "@ts"
+    }
+  }
+
+}
