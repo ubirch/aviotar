@@ -28,21 +28,24 @@ import com.typesafe.scalalogging.LazyLogging
 import net.liftweb.json.JsonDSL._
 import net.liftweb.json.Serialization.write
 import net.liftweb.json.{Extraction, JObject, JValue, parse}
-import ubirch.aviotar.actors.ElasticSearchSink
 import ubirch.mqtt.MQTTClient
-import ubirch.mqtt.MQTTClient.{Configuration, Publish, Subscribe}
+import ubirch.mqtt.MQTTClient.{Configuration, Publish}
 
 import scala.io.Source
 import scala.util.Try
 
 /**
- * Import thingspeak feed files. A directory containing json files is expected as command line argument.
+ * Import thingspeak feed files.
+ *
+ * Prerequisites: run ubirch-server to have the sink ready
+ *
+ * A directory containing json files is expected as command line argument.
  * To create the dumps use the following script:
  *
  * {{{
  * #! /bin/sh
  * for i in `seq 1 43`; do
- *   curl "http://api.ubirch.com/channels/$i/feed.json?start=2014-01-01%2000:00:00&end=2015-12-31%2000:00:00&key=XXXXXX" > $i.json
+ *   curl "curl "http://api.ubirch.com/channels/$i/feed.json?days=365&key=XXXXXX" > $i.json
  * done
  * }}}
  *
@@ -57,8 +60,6 @@ object ImportThingSpeak extends App with LazyLogging {
   val system = ActorSystem("aviotar")
   val mqttConfig = new Configuration(clientId = Some("aviotar-test"))
   val mqtt = system.actorOf(Props(new MQTTClient(new URI("tcp://localhost:1883"), mqttConfig)))
-
-  mqtt ! Subscribe("/sensors/#", system.actorOf(Props(new ElasticSearchSink("http://localhost:9200", "sensors", "@ts"))), 2)
 
   val dir = new File(args(0))
   if (dir.exists) {
