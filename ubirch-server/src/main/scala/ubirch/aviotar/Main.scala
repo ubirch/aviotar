@@ -103,7 +103,7 @@ object Main extends App with LazyLogging {
     case Some(f) =>
       val configFile = new File(f.toString)
       if(configFile.exists()) parse(new FileReader(configFile))
-      else throw new IllegalArgumentException(s"configuration file $f does not exist")
+      else throw new IllegalArgumentException(s"configuration file ${configFile.getCanonicalPath} does not exist")
     case None =>
       parse(new InputStreamReader(getClass.getResourceAsStream("/ubirch-server.json")))
   }
