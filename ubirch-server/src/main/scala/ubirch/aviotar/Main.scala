@@ -44,7 +44,7 @@ object Main extends App with LazyLogging {
 
     val mqttConfig = buildMQTTConfiguration(config \ "mqtt")
     logger.info(s"MQTT client ID: ${mqttConfig.clientId}")
-    val mqtt = system.actorOf(Props(new MQTTClient(new URI("tcp://localhost:1883"), mqttConfig)))
+    val mqtt = system.actorOf(Props(new MQTTClient(new URI((config \ "mqtt" \ "url").extract), mqttConfig)))
 
     (config \ "subscriber").children.foreach {
       case JField(topic, sub) =>

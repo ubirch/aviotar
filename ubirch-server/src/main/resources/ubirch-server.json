@@ -1,5 +1,6 @@
 {
   "mqtt": {
+    "url": "tcp://localhost:1883",
     "clientId": "aviotar-server"
   },
   "subscriber": {
