@@ -131,7 +131,7 @@ class MQTTClient(broker: URI, config: MQTTClient.Configuration = MQTTClient.Conf
 
   private[this] val connectionCallback = new IMqttActionListener {
     override def onFailure(asyncActionToken: IMqttToken, exception: Throwable): Unit = {
-      log.error(s"client disconnected: ${exception.getMessage}")
+      log.debug(s"client disconnected: ${exception.getMessage}")
       self ! Disconnected(Some(exception))
     }
 
@@ -154,12 +154,14 @@ class MQTTClient(broker: URI, config: MQTTClient.Configuration = MQTTClient.Conf
 
   @inline private def decode(s: String) = URLDecoder.decode(s, "UTF-8")
 
+  @inline private def backoff(retries: Int): Int = ((1.0 / 2.0) * (math.pow(2.0, retries) - 1)).toInt
+
   // start the Finite State Machine in disconnected state
   startWith(ClientDisconnected, 0)
 
   // handle client disconnected state
   when(ClientDisconnected) {
-    case Event(Connect, retries) =>
+    case Event(Connect, retries) if retries < config.reconnectTriesMax =>
       log.info(s"connect(${broker.toString}, retries=$retries)")
       val mqttConnectOptions = new MqttConnectOptions
       config.userName.foreach(mqttConnectOptions.setUserName)
@@ -170,6 +172,10 @@ class MQTTClient(broker: URI, config: MQTTClient.Configuration = MQTTClient.Conf
 
       client.connect(mqttConnectOptions, null, connectionCallback)
       stay using (retries + 1)
+
+    case Event(Connect, retries) =>
+      log.warning(s"stopping connection retries, because retries (${config.reconnectTriesMax}) exhausted")
+      stay()
 
     case Event(Connected, retries) =>
       log.info(s"connected(${broker.toString}, retries=$retries)")
@@ -228,9 +234,10 @@ class MQTTClient(broker: URI, config: MQTTClient.Configuration = MQTTClient.Conf
       }
       stay()
 
-    case Event(Disconnected(throwable), _) =>
+    case Event(Disconnected(throwable), retries) =>
       throwable.foreach(e => log.debug(s"disconnected(${e.getMessage}"))
-      setTimer("reconnect", Connect, 10 seconds)
+      log.warning(s"reconnecting in ${backoff(retries)}s")
+      setTimer("reconnect", Connect, backoff(retries) seconds)
       goto(ClientDisconnected)
   }
 
