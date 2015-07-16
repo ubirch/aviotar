@@ -21,7 +21,7 @@
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
    xmlns:pom="http://maven.apache.org/POM/4.0.0">
 
-  <xsl:output method="text" indent="no" omit-xml-declaration="yes" />
+  <xsl:output method="text"/>
 
   <xsl:template match="/pom:project">
     <xsl:value-of select="pom:artifactId"/>
