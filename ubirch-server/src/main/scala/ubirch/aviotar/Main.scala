@@ -39,12 +39,13 @@ object Main extends App with LazyLogging {
   val system = ActorSystem("aviotar")
 
   try {
-    val options = nextOption(args.toList)
+    val options = parseOptions(args.toList)
+    println(s"${options}")
     val config = readConfig(options.get('config))
 
     val mqttConfig = buildMQTTConfiguration(config \ "mqtt")
     logger.info(s"MQTT client ID: ${mqttConfig.clientId}")
-    val mqtt = system.actorOf(Props(new MQTTClient(new URI((config \ "mqtt" \ "url").extract), mqttConfig)))
+    val mqtt = system.actorOf(Props(new MQTTClient(new URI((config \ "mqtt" \ "url").extract[String]), mqttConfig)))
 
     (config \ "subscriber").children.foreach {
       case JField(topic, sub) =>
@@ -75,10 +76,12 @@ object Main extends App with LazyLogging {
   }
 
   def buildMQTTConfiguration(config: JValue): Configuration = {
+    @inline def emptyNone(s: Option[String]) = s.filter(_ != "")
+
     Configuration(
-      userName = (config \ "user").extractOpt[String],
-      password = (config \ "password").extractOpt[String],
-      clientId = (config \ "clientId").extractOpt[String],
+      userName = emptyNone((config \ "user").extractOpt[String]),
+      password = emptyNone((config \ "password").extractOpt[String]),
+      clientId = emptyNone((config \ "clientId").extractOpt[String]),
       cleanSession = (config \ "cleanSession").extractOpt[Boolean],
       connectionTimeout = (config \ "connectionTimeout").extractOpt[Int],
       keepAliveInterval = (config \ "keepAliveInterval").extractOpt[Int],
@@ -87,13 +90,13 @@ object Main extends App with LazyLogging {
     )
 
   }
-  def nextOption(list: List[String], map: Map[Symbol, Any] = Map()): Map[Symbol, Any] = {
+  def parseOptions(list: List[String], map: Map[Symbol, Any] = Map()): Map[Symbol, Any] = {
     def isSwitch(s: String) = s.charAt(0) == '-'
 
     list match {
       case Nil => map
       case "-c" :: value :: tail =>
-        nextOption(tail, map ++ Map('config -> value))
+        parseOptions(tail, map ++ Map('config -> value))
       case option :: tail =>
         throw new IllegalArgumentException(option)
     }
@@ -102,9 +105,11 @@ object Main extends App with LazyLogging {
   def readConfig(file: Option[Any]): JValue = file match {
     case Some(f) =>
       val configFile = new File(f.toString)
+      logger.info(s"loading configuration: ${configFile.getCanonicalPath}")
       if(configFile.exists()) parse(new FileReader(configFile))
       else throw new IllegalArgumentException(s"configuration file ${configFile.getCanonicalPath} does not exist")
     case None =>
+      logger.info("loading default configuration")
       parse(new InputStreamReader(getClass.getResourceAsStream("/ubirch-server.json")))
   }
 }
