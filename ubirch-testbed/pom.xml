@@ -30,7 +30,7 @@
     <version>1.0</version>
   </parent>
 
-  <name>ubirch testbed ${version} [mqtt-client, timeseries-store]</name>
+  <name>ubirch testbed ${project.version} [mqtt-client, timeseries-store]</name>
   <description>testbed and playground</description>
 
   <dependencies>

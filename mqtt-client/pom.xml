@@ -30,7 +30,7 @@
     <version>1.0</version>
   </parent>
 
-  <name>mqtt-client ${version}</name>
+  <name>mqtt-client ${project.version}</name>
   <description>mqtt client implementation (paho-java, akka)</description>
 
   <properties>
