@@ -24,7 +24,6 @@
   <xsl:output method="text" indent="no" omit-xml-declaration="yes" />
 
   <xsl:template match="/pom:project">
-
     <xsl:value-of select="pom:artifactId"/>
     <xsl:text>-</xsl:text>
     <xsl:value-of select="pom:version"/>
