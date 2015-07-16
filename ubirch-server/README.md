@@ -33,6 +33,18 @@ The container is meant to be linked to a MQTT container holding the broker and
 and ElasticSearch Container providing the logs. That's why the example.conf is
 referring to simple hostnames for those.
 
+To actually build the container you have to modify the Dockerfile and replace
+the variables for the name of the ubirch-server artifact. We use the following
+command chain in our Jenkins:
+
+```
+cd ${WORKSPACE}/ubirch-server
+
+export UBIRCH_SERVER_JAR=`xsltproc ../artifact.xslt pom.xml`
+cat Dockerfile | envsubst > Dockerfile.build
+docker build -t ubirch/ubirch-server -f Dockerfile.build .
+```
+
 Assuming you have an Docker container for MQTT name "mqtt" and one for ElasticSearch
 name "search" then you can start the ubirch-server like this:
 
