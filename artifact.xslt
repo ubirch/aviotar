@@ -26,7 +26,9 @@
   <xsl:template match="/pom:project">
 
     <xsl:value-of select="pom:artifactId"/>
+    <xsl:text>-</xsl:text>
     <xsl:value-of select="pom:version"/>
+    <xsl:text>.</xsl:text>
     <xsl:value-of select="pom:packaging"/>
   </xsl:template>
 </xsl:stylesheet>
