@@ -1,7 +1,8 @@
 FROM ubirch/java
 MAINTAINER falko.zurell@gmail.com
 
-
-
-ADD ${PWD}/target/${UBIRCH_SERVER_JAR} /opt/
-ENTRYPOINT ["/usr/bin/java", "-jar" , "/opt/${UBIRCH_SERVER_JAR}"]
+ENV UBIRCH_SERVER_JAR $UBIRCH_SERVER_JAR
+RUN echo ${UBIRCH_SERVER_JAR}
+COPY target/${UBIRCH_SERVER_JAR} /opt/ubirch-server.jar
+COPY example.conf /opt/ubirch-server.conf
+ENTRYPOINT ["/usr/bin/java", "-jar" , "/opt/ubirch-server.jar", "-c /opt/ubirch-server.conf"]
