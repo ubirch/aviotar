@@ -25,7 +25,7 @@
   <version>1.0</version>
   <packaging>pom</packaging>
 
-  <name>ubirch-aviotar ${version}</name>
+  <name>ubirch-aviotar ${project.version}</name>
   <description>ubirch cloud avatar library</description>
 
   <licenses>

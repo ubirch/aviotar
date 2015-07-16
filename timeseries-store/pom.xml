@@ -30,7 +30,7 @@
     <version>1.0</version>
   </parent>
 
-  <name>timeseries-store ${version}</name>
+  <name>timeseries-store ${project.version}</name>
   <description>timeseries storage client (elasticsearch)</description>
 
   <properties>
