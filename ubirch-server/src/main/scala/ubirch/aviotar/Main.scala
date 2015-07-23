@@ -22,7 +22,7 @@ import java.net.URI
 
 import akka.actor._
 import com.typesafe.scalalogging.LazyLogging
-import net.liftweb.json.JValue
+import net.liftweb.json.{JArray, JValue}
 import net.liftweb.json.JsonAST.JField
 import net.liftweb.json.JsonParser.parse
 import ubirch.aviotar.actors.ElasticSearchSink
@@ -47,23 +47,21 @@ object Main extends App with LazyLogging {
     logger.info(s"MQTT client ID: ${mqttConfig.clientId}")
     val mqtt = system.actorOf(Props(new MQTTClient(new URI((config \ "mqtt" \ "url").extract[String]), mqttConfig)))
 
-    (config \ "subscriber").children.foreach {
-      case JField(topic, sub) =>
-        val qos: Int = (sub \ "qos").extractOrElse(0)
-        val actor = (sub \ "type").extractOpt[String] match {
-          case Some("ElasticSearchSink") =>
-            val url = (sub \ "url").extract[String]
-            val index = (sub \ "index").extract[String]
-            val ts = (sub \ "timestamp").extract[String]
-            system.actorOf(Props(new ElasticSearchSink(url, index, ts)), s"es-storage-$index")
-          case Some(unknown) =>
-            throw new IllegalArgumentException(s"subscriber $unknown not available")
-          case None =>
-            throw new IllegalArgumentException("no subscriber found")
-        }
-        mqtt ! Subscribe(topic, actor, qos)
-      case unknown: JValue =>
-        throw new IllegalArgumentException(s"unknown subscriber: $unknown")
+    (config \ "subscriber").extract[JArray].children.foreach { sub =>
+      val topic: String = (sub \ "topic").extractOrElse("#")
+      val qos: Int = (sub \ "qos").extractOrElse(0)
+      val actor = (sub \ "type").extractOpt[String] match {
+        case Some("ElasticSearchSink") =>
+          val url = (sub \ "url").extract[String]
+          val index = (sub \ "index").extract[String]
+          val ts = (sub \ "timestamp").extract[String]
+          system.actorOf(Props(new ElasticSearchSink(url, index, ts)), s"es-storage-$index")
+        case Some(unknown) =>
+          throw new IllegalArgumentException(s"subscriber $unknown not available")
+        case None =>
+          throw new IllegalArgumentException("no subscriber found")
+      }
+      mqtt ! Subscribe(topic, actor, qos)
     }
   } catch {
     case e: IllegalArgumentException =>
@@ -90,6 +88,7 @@ object Main extends App with LazyLogging {
     )
 
   }
+
   def parseOptions(list: List[String], map: Map[Symbol, Any] = Map()): Map[Symbol, Any] = {
     def isSwitch(s: String) = s.charAt(0) == '-'
 
@@ -106,7 +105,7 @@ object Main extends App with LazyLogging {
     case Some(f) =>
       val configFile = new File(f.toString)
       logger.info(s"loading configuration: ${configFile.getCanonicalPath}")
-      if(configFile.exists()) parse(new FileReader(configFile))
+      if (configFile.exists()) parse(new FileReader(configFile))
       else throw new IllegalArgumentException(s"configuration file ${configFile.getCanonicalPath} does not exist")
     case None =>
       logger.info("loading default configuration")

@@ -59,7 +59,7 @@ object ImportThingSpeak extends App with LazyLogging {
 
   val system = ActorSystem("aviotar")
   val mqttConfig = new Configuration(clientId = Some("aviotar-test"))
-  val mqtt = system.actorOf(Props(new MQTTClient(new URI("tcp://localhost:1883"), mqttConfig)))
+  val mqtt = system.actorOf(Props(new MQTTClient(new URI("tcp://pirx.explain-it.org:1883"), mqttConfig)))
 
   val dir = new File(args(0))
   if (dir.exists) {
@@ -97,7 +97,7 @@ object ImportThingSpeak extends App with LazyLogging {
                 channel(fieldId).toString.toLowerCase -> value
             }
             val data = Extraction.decompose(fields.toMap).merge("@ts" -> publishFormat.format(timestamp): JValue)
-            mqtt ! Publish(s"/sensors/$id", write(data).getBytes("UTF-8"))
+            mqtt ! Publish(s"/feeds/$id", write(data).getBytes("UTF-8"))
         }
       } catch {
         case e: Exception => logger.error(jsonString)
