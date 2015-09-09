@@ -40,7 +40,7 @@ object Main extends App with LazyLogging {
 
   try {
     val options = parseOptions(args.toList)
-    println(s"${options}")
+    println(s"$options")
     val config = readConfig(options.get('config))
 
     val mqttConfig = buildMQTTConfiguration(config \ "mqtt")
@@ -62,6 +62,10 @@ object Main extends App with LazyLogging {
           throw new IllegalArgumentException("no subscriber found")
       }
       mqtt ! Subscribe(topic, actor, qos)
+    }
+
+    (config \ "thingspeak").extract[JArray].children.foreach { feed =>
+
     }
   } catch {
     case e: IllegalArgumentException =>

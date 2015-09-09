@@ -21,7 +21,7 @@ import java.io._
 import java.math.BigInteger
 import java.net.URI
 import java.text.SimpleDateFormat
-import java.util.TimeZone
+import java.util.{Locale, TimeZone}
 
 import akka.actor._
 import com.typesafe.scalalogging.LazyLogging
@@ -54,12 +54,13 @@ import scala.util.Try
  */
 object ImportThingSpeak extends App with LazyLogging {
   // TODO: use a URL and an API key to directly access a thingspeak server.
-
   implicit val formats = net.liftweb.json.DefaultFormats
+
+  Locale.setDefault(Locale.US)
 
   val system = ActorSystem("aviotar")
   val mqttConfig = new Configuration(clientId = Some("aviotar-test"))
-  val mqtt = system.actorOf(Props(new MQTTClient(new URI("tcp://pirx.explain-it.org:1883"), mqttConfig)))
+  val mqtt = system.actorOf(Props(new MQTTClient(new URI("tcp://pirx.ubirch.com:1883"), mqttConfig)))
 
   val dir = new File(args(0))
   if (dir.exists) {
@@ -84,6 +85,9 @@ object ImportThingSpeak extends App with LazyLogging {
         (json \ "feeds").extract[Array[JObject]].foreach {
           entry =>
             val timestamp = feedFormat.parse((entry \ "created_at").extract[String])
+            val lat = Try(new java.math.BigDecimal((entry \ "latitude").extract[String]).doubleValue()) getOrElse 0.0
+            val lon = Try(new java.math.BigDecimal((entry \ "longitude").extract[String]).doubleValue()) getOrElse 0.0
+
             val fields = (1 to 8).collect {
               case i if (entry \ s"field$i").toOpt.isDefined && (entry \ s"field$i").extract[String] != null =>
                 val fieldId: String = s"field$i"
@@ -96,11 +100,13 @@ object ImportThingSpeak extends App with LazyLogging {
                 // storage data using the actual field name (which should be lowercase)
                 channel(fieldId).toString.toLowerCase -> value
             }
-            val data = Extraction.decompose(fields.toMap).merge("@ts" -> publishFormat.format(timestamp): JValue)
+            val data = Extraction.decompose(fields.toMap)
+              .merge("geo" -> List(lat, lon): JValue)
+              .merge("@ts" -> publishFormat.format(timestamp): JValue)
             mqtt ! Publish(s"/feeds/$id", write(data).getBytes("UTF-8"))
         }
       } catch {
-        case e: Exception => logger.error(jsonString)
+        case e: Exception => logger.error(e.getMessage)
       }
     }
   } else {

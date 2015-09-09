@@ -58,6 +58,17 @@
       <version>4.5</version>
     </dependency>
 
+    <dependency>
+      <groupId>io.spray</groupId>
+      <artifactId>spray-can_${scala.major.version}</artifactId>
+      <version>1.3.3</version>
+    </dependency>
+    <dependency>
+      <groupId>io.spray</groupId>
+      <artifactId>spray-routing_${scala.major.version}</artifactId>
+      <version>1.3.3</version>
+    </dependency>
+
     <!-- scala, logging etc. -->
     <dependency>
       <groupId>org.scala-lang</groupId>
@@ -162,6 +173,11 @@
     <repository>
       <id>Eclipse Paho Repo</id>
       <url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
+    </repository>
+    <repository>
+      <id>sprayrepo</id>
+      <name>spray repo</name>
+      <url>http://repo.spray.io/</url>
     </repository>
   </repositories>
 </project>
